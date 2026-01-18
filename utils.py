@@ -153,13 +153,7 @@ def read_reordering_file_to_tensor(
     return perm
 
 
-def apply_reordering(x: torch.Tensor, perm: torch.Tensor, dim: int = 0) -> torch.Tensor:
-    if perm.dtype != torch.int64:
-        perm = perm.to(torch.int64)
-    if perm.device != x.device:
-        perm = perm.to(x.device)
-    perm = perm.contiguous()
-    return x.index_select(dim, perm)
+
 
 def reverse_reordering(
     x: torch.Tensor,
