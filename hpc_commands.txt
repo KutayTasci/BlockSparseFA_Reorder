@@ -1,2 +1,4 @@
 module load Python/3.11.5-GCCcore-13.2.0
 module load CUDA/12.8.0
+
+python main.py --row-reorder ./data/hp_hpnbm_row_permutation.txt --head-dim 64  --col-reorder ./data/hp_hpnbm_col_permutation.txt ./data/hp_hpnbm_reordered.mtx
