@@ -13,10 +13,6 @@ from BlockSparseXF import run_experiments_BSFlexAttention
 REPEATS_WARMUP = 10
 REPEATS_TIMING = 25
 
-MODE = "BSFA"  # Options: "BSFA", "BSFlexAttention"
-
-
-
 
 def run_sparse_attention_reordering_test(args: Args) -> None:
     """
@@ -36,6 +32,10 @@ def run_sparse_attention_reordering_test(args: Args) -> None:
         )
 
         rows_idx = update_idx_perm(rows_idx, row_perm)
+
+        #print the first 10 entries of the row_perm and rows_idx for debugging
+        #print("row_perm:", row_perm[:10])
+        #print("rows_idx:", rows_idx[:10])
         
     else:
         row_perm = None
@@ -49,7 +49,7 @@ def run_sparse_attention_reordering_test(args: Args) -> None:
     else:
         col_perm = None
 
-    if MODE == "BSFA":
+    if args.mode == "BSFA":
         block_mask, seq_len = generate_blockmask_from_mtx_coords(
             rows_idx=rows_idx,
             cols_idx=cols_idx,
@@ -59,7 +59,7 @@ def run_sparse_attention_reordering_test(args: Args) -> None:
             nheads=args.num_heads,
             device="cuda:0",
         )
-    elif MODE == "BSFlexAttention":
+    elif args.mode == "BSFlexAttention":
         block_mask, seq_len = generate_flex_blockmask_from_mtx_coords(
             rows_idx=rows_idx,
             cols_idx=cols_idx,
@@ -68,11 +68,11 @@ def run_sparse_attention_reordering_test(args: Args) -> None:
             device="cuda:0",
         )
     else:
-        raise ValueError(f"Unsupported MODE: {MODE}")
+        raise ValueError(f"Unsupported MODE: {args.mode}")
     
-    if MODE == "BSFlexAttention":
+    if args.mode == "BSFlexAttention":
         run_experiments_BSFlexAttention(args, block_mask, seq_len, row_perm=row_perm, col_perm=col_perm)
-    elif MODE == "BSFA":
+    elif args.mode == "BSFA":
         run_experiments_BSFA(args, block_mask, seq_len, row_perm=row_perm, col_perm=col_perm)
 
 
@@ -123,6 +123,13 @@ def parse_args(argv: Optional[list[str]] = None) -> Args:
         default=None,
         help="Optional input file for column reorderings (default: None).",
     )
+    p.add_argument(
+        "--mode",
+        type=str,
+        choices=["BSFA", "BSFlexAttention"],
+        default="BSFA",
+        help="Attention mode: BSFA or BSFlexAttention (default: BSFA).",
+    )
 
     ns = p.parse_args(argv)
 
@@ -140,6 +147,7 @@ def parse_args(argv: Optional[list[str]] = None) -> Args:
         num_heads=ns.num_heads,
         row_reorder=ns.row_reorder,
         col_reorder=ns.col_reorder,
+        mode=ns.mode,
     )
 
 

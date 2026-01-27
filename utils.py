@@ -19,6 +19,7 @@ class Args:
     num_heads: int = 1
     row_reorder: Optional[Path] = None
     col_reorder: Optional[Path] = None
+    mode : str = "BSFA"
 
 
 def read_mtx(path: str) -> torch.Tensor:
@@ -32,7 +33,7 @@ def read_mtx(path: str) -> torch.Tensor:
     Returns:
         torch.Tensor: A dense tensor representation of the sparse matrix.
     """
-    print(f"Loading blockmask from {path} ...")
+    # print(f"Loading blockmask from {path} ...")
     # Read first line for seq_len check (optional)
     with open(path, 'r') as f:
         first_line = f.readline()
@@ -79,7 +80,7 @@ def generate_blockmask_from_mtx_coords(
     idx = torch.tensor(row_blocks * ncol + col_blocks, device=device)
     blockmask_flat = blockmask.view(batch_size, nheads, -1)
     blockmask_flat[:, :, idx] = True
-    print(f"Blockmask shape: {blockmask.shape}, nnz blocks: {blockmask.sum().item()}")
+    print(f"NNZ blocks: {blockmask.sum().item()}")
     return blockmask, seq_len
 
 def generate_flex_blockmask_from_mtx_coords(
@@ -244,9 +245,17 @@ def update_idx_perm(idx: np.ndarray, perm: torch.Tensor) -> np.ndarray:
         numpy array of permuted indices
         # i.e., old index perm[i] goes to new index i
     """
-    perm_cpu = perm.cpu().numpy()
-    updated_idx = perm_cpu[idx]
-    return updated_idx
+    # Convert perm to numpy
+    perm_np = perm.cpu().numpy()
+
+
+    # Compute inverse permutation: inv_perm[old] = new
+    inv_perm = np.empty_like(perm_np)
+    inv_perm[perm_np] = np.arange(len(perm_np))
+
+
+    # Apply inverse permutation to indices
+    return inv_perm[idx]
 
 def apply_reordering(x: torch.Tensor, perm: torch.Tensor, dim: int = 0) -> torch.Tensor:
     if perm.dtype != torch.int64:
