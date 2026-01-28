@@ -8,6 +8,8 @@ from pathlib import Path
 from utils import *
 from BlockSparseFA import run_experiments_BSFA
 from BlockSparseXF import run_experiments_BSFlexAttention
+from BlockSparseTriton_Fused import run_experiments_BSTriton_Fused
+from BlockSparseTriton_Naive import run_experiments_BSTriton_Naive
 
 
 REPEATS_WARMUP = 10
@@ -67,6 +69,16 @@ def run_sparse_attention_reordering_test(args: Args) -> None:
             block_size=args.block_size,
             device="cuda:0",
         )
+    elif (args.mode == "BSTN") or (args.mode == "BSTF"):
+        block_mask, seq_len = generate_blockmask_from_mtx_coords(
+            rows_idx=rows_idx,
+            cols_idx=cols_idx,
+            seq_len=seq_len,
+            block_size=64,
+            batch_size=1,
+            nheads=args.num_heads,
+            device="cuda:0",
+        )
     else:
         raise ValueError(f"Unsupported MODE: {args.mode}")
     
@@ -74,6 +86,10 @@ def run_sparse_attention_reordering_test(args: Args) -> None:
         run_experiments_BSFlexAttention(args, block_mask, seq_len, row_perm=row_perm, col_perm=col_perm)
     elif args.mode == "BSFA":
         run_experiments_BSFA(args, block_mask, seq_len, row_perm=row_perm, col_perm=col_perm)
+    if args.mode == "BSTF":
+        run_experiments_BSTriton_Fused(args, block_mask, seq_len, row_perm=row_perm, col_perm=col_perm)
+    if args.mode == "BSTN":
+        run_experiments_BSTriton_Naive(args, block_mask, seq_len, row_perm=row_perm, col_perm=col_perm)
 
 
 def _positive_int(x: str) -> int:
@@ -126,7 +142,7 @@ def parse_args(argv: Optional[list[str]] = None) -> Args:
     p.add_argument(
         "--mode",
         type=str,
-        choices=["BSFA", "BSFlexAttention"],
+        choices=["BSFA", "BSFlexAttention", "BSTF", "BSTN"],
         default="BSFA",
         help="Attention mode: BSFA or BSFlexAttention (default: BSFA).",
     )

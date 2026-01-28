@@ -60,7 +60,7 @@ def run_experiments_BSFA(
     # -----------------------------
     # Warm-up
     # -----------------------------
-
+    torch.cuda.synchronize()
     for _ in range(REPEATS_WARMUP):
         #Reorder q, k, v if permutations are provided
         if row_perm is not None:
@@ -91,6 +91,7 @@ def run_experiments_BSFA(
     # -----------------------------
     # Timing
     # -----------------------------
+    torch.cuda.synchronize()
     start_ns = time.monotonic_ns()
 
     for _ in range(REPEATS_TIMING):
@@ -137,6 +138,7 @@ def run_experiments_BSFA(
     if col_perm is not None:
         k_unpad = apply_reordering(k_unpad_tmp, col_perm)
         v_unpad = apply_reordering(v_unpad_tmp, col_perm)
+    torch.cuda.synchronize()
     for _ in range(REPEATS_WARMUP):
         
 
@@ -158,6 +160,7 @@ def run_experiments_BSFA(
     # -----------------------------
     # Timing
     # -----------------------------
+    torch.cuda.synchronize()
     start_ns = time.monotonic_ns()
 
     

@@ -42,6 +42,7 @@ def run_experiments_BSFlexAttention(
     # Compile flex attention so it doesn't materialize full scores
     flex_attn_compiled = torch.compile(flex_attention, fullgraph=True)
     # Measure time for sparse attention with reordering
+    torch.cuda.synchronize()
     for _ in range(REPEATS_WARMUP):
         #Reorder q, k, v if permutations are provided
         if row_perm is not None:
@@ -66,7 +67,7 @@ def run_experiments_BSFlexAttention(
 
     torch.cuda.synchronize()
 
-
+    torch.cuda.synchronize()
     start_ns = time.monotonic_ns()
 
     for _ in range(REPEATS_TIMING):
@@ -104,6 +105,7 @@ def run_experiments_BSFlexAttention(
     if col_perm is not None:
         k_unpad = apply_reordering(k, col_perm, dim=2)
         v_unpad = apply_reordering(v, col_perm, dim=2)
+    torch.cuda.synchronize()
     for _ in range(REPEATS_WARMUP):
         out = flex_attn_compiled(
             q_unpad,
