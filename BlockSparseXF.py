@@ -61,6 +61,9 @@ def run_experiments_BSFlexAttention(
             block_mask=block_mask,
         )
 
+        if row_perm is not None:
+            out = reverse_reordering(out, row_perm, dim=2)
+
     torch.cuda.synchronize()
 
 
@@ -88,7 +91,7 @@ def run_experiments_BSFlexAttention(
         if row_perm is not None:
             out = reverse_reordering(out, row_perm, dim=2)
 
-        torch.cuda.synchronize()
+    torch.cuda.synchronize()
 
     end_ns = time.monotonic_ns()
     total_time_s = (end_ns - start_ns) / 1e9
@@ -108,7 +111,7 @@ def run_experiments_BSFlexAttention(
             v_unpad,
             block_mask=block_mask,
         )
-        torch.cuda.synchronize()
+    torch.cuda.synchronize()
 
     start_ns = time.monotonic_ns()
 
@@ -120,7 +123,7 @@ def run_experiments_BSFlexAttention(
             block_mask=block_mask,
         )
 
-        torch.cuda.synchronize()
+    torch.cuda.synchronize()
     
     end_ns = time.monotonic_ns()
     total_time_s = (end_ns - start_ns) / 1e9

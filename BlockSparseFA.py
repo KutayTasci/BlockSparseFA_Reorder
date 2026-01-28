@@ -86,7 +86,7 @@ def run_experiments_BSFA(
             exact_streaming=False,
             return_attn_probs=True,
         )
-        torch.cuda.synchronize()
+    torch.cuda.synchronize()
 
     # -----------------------------
     # Timing
@@ -119,7 +119,7 @@ def run_experiments_BSFA(
             # Undo reordering of output
             out_unpad = reverse_reordering(out_unpad, row_perm)
 
-        torch.cuda.synchronize()
+    torch.cuda.synchronize()
 
     end_ns = time.monotonic_ns()
     total_time_s = (end_ns - start_ns) / 1e9
@@ -153,7 +153,7 @@ def run_experiments_BSFA(
             exact_streaming=False,
             return_attn_probs=True,
         )
-        torch.cuda.synchronize()
+    torch.cuda.synchronize()
 
     # -----------------------------
     # Timing
@@ -178,7 +178,7 @@ def run_experiments_BSFA(
             exact_streaming=False,
             return_attn_probs=True,
         )
-        torch.cuda.synchronize()
+    torch.cuda.synchronize()
 
     end_ns = time.monotonic_ns()
     total_time_s = (end_ns - start_ns) / 1e9

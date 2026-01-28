@@ -109,7 +109,7 @@ run_experiment() {
 }
 
 # Main experiment loop
-for exp_dir in Reorder_Exp_0 Reorder_Exp_1 Reorder_Exp_2; do
+for exp_dir in Reorder_Exp_0; do
     exp_path="${BASE_DIR}/${exp_dir}"
     
     if [ ! -d "$exp_path" ]; then
