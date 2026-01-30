@@ -16,7 +16,7 @@ module load Python/3.11.5-GCCcore-13.2.0
 module load CUDA/12.8.0
 
 # Activate virtual environment
-source .venv/bin/activate
+source /home/kxt437/KLab/BlockSparseFA_Reorder/.venv/bin/activate
 
 # Base directory for experiments
 BASE_DIR="/scratch/pioneer/users/kxt437"

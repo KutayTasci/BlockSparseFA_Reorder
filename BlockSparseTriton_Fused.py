@@ -37,12 +37,18 @@ def run_experiments_BSTriton_Fused(
     # Create an output tensor
     o = torch.empty_like(q)
 
-    # Change the permutation shapes if they are provided
-    if (row_perm is not None) and (col_perm is not None):
+    # Change the permutation shapes if they are provided and create [0, S) tensors if no permutation is provided
+    if row_perm is not None:
         row_perm = row_perm.view(1, 1, q.shape[2], 1).expand(q.shape[0], q.shape[1], q.shape[2], q.shape[3])
+    else:
+        row_perm = torch.arange(0, q.shape[2], dtype = torch.int64, device = device)
+        row_perm = row_perm.view(1, 1, q.shape[2], 1).expand(q.shape[0], q.shape[1], q.shape[2], q.shape[3])
+    
+    if col_perm is not None:
         col_perm = col_perm.view(1, 1, q.shape[2], 1).expand(q.shape[0], q.shape[1], q.shape[2], q.shape[3])
     else:
-        raise ValueError("Permutations are required by this kernel.")
+        col_perm = torch.arange(0, q.shape[2], dtype = torch.int64, device = device)
+        col_perm = col_perm.view(1, 1, q.shape[2], 1).expand(q.shape[0], q.shape[1], q.shape[2], q.shape[3])
 
     # Set some parameters for the kernel
     BLOCK_M = 64 # 128, 64 is used by the original kernel's best config
