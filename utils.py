@@ -133,7 +133,7 @@ def generate_flex_blockmask_from_mtx_coords(
         BLOCK_SIZE=block_size,
         _compile=compile_mask,
     )
-
+    print(f"NNZ blocks: {allowed_blocks.sum().item()}")
     return block_mask, seq_len
 
 def read_reordering_file_to_tensor(
